@@ -6,17 +6,17 @@ import sys
 import random
 
 
-FPS = 9
-# the first sneake length
-INIT_LENGTH = 5
-# limitation for screen
-WIDTH = 600
-HEIGHT = 600
-# limitatiton for the grid
-GRID_SIDE = 20
+
+FPS = 10
+
+INIT_LENGTH = 4
+
+WIDTH = 480
+HEIGHT = 480
+GRID_SIDE = 24
 GRID_WIDTH = WIDTH // GRID_SIDE
 GRID_HEIGHT = HEIGHT // GRID_SIDE
-# choosing the color for squares
+
 BRIGHT_BG = (211, 211, 211)
 DARK_BG = (112, 138, 144)
 
@@ -25,7 +25,7 @@ FOOD_COL = (46, 139, 87)
 OBSTACLE_COL = (255, 0, 0)
 VISITED_COL = (24, 42, 142)
 
-# for creating unique elements we are using the @unique
+
 @unique
 class Direction(tuple, Enum):
     UP = (0, -1)
@@ -33,12 +33,11 @@ class Direction(tuple, Enum):
     LEFT = (-1, 0)
     RIGHT = (1, 0)
 
-# for rever direction we are creating the func reverse
     def reverse(self):
         x, y = self.value
         return Direction((x * -1, y * -1))
 
-# for classification the datas we are using the @dataclass
+
 @dataclass
 class Position:
     x: int
@@ -53,7 +52,7 @@ class Position:
         )
         pygame.draw.rect(surface, color, r)
         pygame.draw.rect(surface, background, r, 1)
-# definication of the
+
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Position):
             return (self.x == o.x) and (self.y == o.y)
@@ -65,7 +64,6 @@ class Position:
 
     def __hash__(self):
         return hash(str(self))
-    # hash using for: the returns the hash value of an object if it has one
 
 
 class GameNode:
@@ -81,12 +79,12 @@ class GameNode:
         except KeyError:
             pass
 
-        candidate_position = Position(
+        condidate_position = Position(
             random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1),
         )
 
-        if candidate_position not in GameNode.nodes:
-            self.position = candidate_position
+        if condidate_position not in GameNode.nodes:
+            self.position = condidate_position
             GameNode.nodes.add(self.position)
         else:
             self.randomize_position()
@@ -119,7 +117,7 @@ class Snake:
 
     def reset(self):
         self.length = self.init_length
-        self.positions = [Position((GRID_SIDE // 2), (GRID_SIDE // 2))]
+        self.positions = [Position((GRID_SIDE / 2), (GRID_SIDE / 2))]
         self.direction = random.choice([e for e in Direction])
         self.score = 0
         self.hasReset = True
@@ -201,13 +199,12 @@ class Player:
 class SnakeGame:
     def __init__(self, snake: Snake, player: Player) -> None:
         pygame.init()
-        pygame.display.set_caption("AIF - SnakeGame")
+        pygame.display.set_caption("AIFundamentals - SnakeGame")
 
         self.snake = snake
         self.food = Food()
         self.obstacles: Set[Obstacle] = set()
-
-        for _ in range(60):
+        for _ in range(40):
             ob = Obstacle()
             while any([ob.position == o.position for o in self.obstacles]):
                 ob.randomize_position()
@@ -281,6 +278,12 @@ class HumanPlayer(Player):
 
     def turn(self, direction: Direction):
         self.chosen_path.append(direction)
+
+
+# ----------------------------------
+# DO NOT MODIFY CODE ABOVE THIS LINE
+# ----------------------------------
+
 
 class SearchBasedPlayer(Player):
     def __init__(self):
@@ -362,7 +365,7 @@ class SearchBasedPlayer(Player):
                         queue[new_position] = [(abs(new_position.x - food.position.x) + abs(new_position.y - food.position.y)),
                                                (path + 1 + modifier)]
         if len(queue) == 0 and position is not food.position:
-            print("Cannot find path. God help us for no algorithm can.")
+            print("Can not find path.")
             exit()
         else:
             path = self.backtrace(parent, snake.get_head_position(), position)
@@ -404,7 +407,7 @@ class SearchBasedPlayer(Player):
                         queue[new_position] = (abs(new_position.x - food.position.x) +
                                                abs(new_position.y - food.position.y) + modifier)
         if len(queue) == 0 and position is not food.position:
-            print("Cannot find a path. God help us for no algorithm can.")
+            print("Cannot find a path.")
             exit()
         else:
             path = self.backtrace(parent, snake.get_head_position(), position)
@@ -443,7 +446,7 @@ class SearchBasedPlayer(Player):
                             visited.append(new_position)
                         queue.append(new_position)
         if len(queue) == 0 and position is not food.position:
-            print("Cannot find a path. God help us for no algorithm can.")
+            print("Cannot find a path.")
             exit()
         else:
             path = self.backtrace(parent, snake.get_head_position(), position)
@@ -464,8 +467,8 @@ class SearchBasedPlayer(Player):
 
 
 if __name__ == "__main__":
+    pygame.font.init()
     snake = Snake(WIDTH, WIDTH, INIT_LENGTH)
-    player = HumanPlayer()
-    # player = SearchBasedPlayer()
+    player = SearchBasedPlayer()
     game = SnakeGame(snake, player)
     game.run()
